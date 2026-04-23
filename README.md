@@ -1,34 +1,90 @@
-# FreePBX Caller ID Spoofing Setup (Works for FreePBX 15 and 16)
+# FreePBX / Asterisk Custom Dialplan Lab
 
-**It may work with FreePBX 17 as well**, but you will not be able to change the Context (they removed the option).  
-In that case, you will have to change `CUSTOM_STUFF` to `from-internal` in the code.
+This repository contains a custom Asterisk dialplan example for use with FreePBX in a controlled lab environment.
 
-### Why This Matters
-With the custom context option you can have **both** a `CUSTOM_STUFF` and a `from-internal` context.  
-This allows you to have **2 different extensions**:
-- One where you can spoof a custom number manually (using the `from-internal` one)
-- One where you can auto-spoof using the dial patterns (using the `CUSTOM_STUFF` one)
+The purpose of this project is to demonstrate practical understanding of FreePBX and Asterisk dialplan development, including custom contexts, pattern-based routing, variable handling, conditional logic, and outbound trunk selection.
 
-### Setup Steps
+## Compatibility
 
-1. In your FreePBX dashboard go to **Admin > Config Edit** (or directly to `extensions_custom.conf`).
-2. Paste the code provided in the GitHub into `extensions_custom.conf` (click **Save** and **Apply Config**).
-3. Create your extensions in **Connectivity > Extensions**:
-   - One **normal extension** – change nothing.
-   - One **spoofing extension** – go to the **Advanced** tab and change the **Context** to `CUSTOM_STUFF`.  
-     (Save and Apply Config)
+- FreePBX 15
+- FreePBX 16
+- FreePBX 17 may require adjustments depending on how extension context assignment is handled in the GUI
 
-**Important Note on the Code:**  
-In the code, look at the **second-to-last line** for each number pattern where it says `BulkVS,30`.  
-**Change `BulkVS`** to the **exact name of your SIP Trunk** in FreePBX and leave the `,30` unchanged.
+## Project Goals
 
-### How It Works (on the CUSTOM_STUFF extension)
+This lab is intended to demonstrate:
 
-- `XXX-XXX-XXXX` = Uses **Custom Caller ID** that you set through the extension (works on `from-internal` only)  
-- `2*XXX-XXX-XXXX` = Spoofs Caller ID to **mimic the area code** and randomly generates the remaining numbers  
-- `3*XXX-XXX-XXXX` = Spoofs Caller ID to a **random 1800 number**  
-- `4*XXX-XXX-XXXX` = Spoofs Caller ID to **mimic the number you are dialing**  
-- `5*XXX-XXX-XXXX` = Spoofs Caller ID to a **completely randomly generated number**  
-- `6*XXX-XXX-XXXX` = Spoofs Caller ID to mimic the dialed number **except the last digit**, which is randomized
+- Custom dialplan development in Asterisk
+- Use of `extensions_custom.conf`
+- Creation and use of custom contexts
+- Pattern matching with Asterisk dialplan syntax
+- String slicing and variable manipulation
+- Conditional logic with `ExecIf()`
+- Dynamic variable generation with `RAND()`
+- Outbound routing through a named PJSIP trunk
+- Basic call recording and logging behavior
 
-**Tip:** Use the normal extension for regular calls and the spoofing extension (with `CUSTOM_STUFF` context) when you want to use the special `*` patterns. 
+## Repository Contents
+
+- `custom_dialplan.conf`  
+  Example custom dialplan context for lab testing and pattern-based call handling
+
+## Setup Overview
+
+1. Open **Admin > Config Edit** in FreePBX.
+2. Review or edit `extensions_custom.conf`.
+3. Copy the custom dialplan context from this repository into `extensions_custom.conf`.
+4. Save the file and apply the configuration.
+5. Create a test extension in **Connectivity > Extensions**.
+6. If your FreePBX version supports custom extension contexts, assign the test extension to the custom context used in this project.
+7. Confirm that the trunk name in the dialplan matches the exact trunk name configured in your FreePBX system.
+
+## Important Configuration Note
+
+The sample dialplan sends calls using a named PJSIP trunk. Update the trunk reference in the dialplan so it matches your own environment exactly.
+
+Example:
+
+`Dial(PJSIP/${CALLEDNUM}@YOUR_TRUNK_NAME,30)`
+
+Replace `YOUR_TRUNK_NAME` with the exact name of your configured PJSIP trunk.
+
+## What This Lab Demonstrates
+
+This project shows how Asterisk dialplan logic can be used to:
+
+- Process dialed input
+- Normalize or transform values before routing
+- Apply pattern-based logic to outbound calls
+- Build dynamic variable values during call processing
+- Route calls through a selected outbound trunk
+- Record and inspect test calls in a lab environment
+
+## Notes on FreePBX Versions
+
+Behavior may differ between FreePBX versions.
+
+In some versions, custom extension contexts can be assigned directly in extension settings. In others, this option may be limited or removed from the GUI, which may require adapting the dialplan structure to fit the default internal calling context.
+
+## Testing and Safety
+
+This project is intended for:
+
+- Lab use
+- Training
+- Dialplan experimentation
+- Authorized PBX testing
+
+Always ensure your configuration, call routing, caller ID behavior, and trunk usage comply with applicable law, carrier requirements, and organizational policy.
+
+## Skills Demonstrated
+
+This repository can be used to showcase experience with:
+
+- FreePBX administration
+- Asterisk dialplan syntax
+- Custom call routing
+- PJSIP trunk usage
+- Pattern matching
+- PBX troubleshooting
+- Telecom lab testing
